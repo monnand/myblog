@@ -9,13 +9,13 @@ class Author(models.Model):
     decrypt_key = models.CharField(max_length=1024)
     email = models.EmailField()
     about = models.TextField()
-    can_add_user = models.Boolean(default=False)
+    can_add_user = models.BooleanField(default=False)
 
 class Post(models.Model):
     title = models.CharField(max_length=256)
     author = models.ForeignKey(Author, related_name="posts")
 
-    slug = models.CharField(max_lenght=256, unique=True)
+    slug = models.CharField(max_length=256, unique=True)
     created = models.DateTimeField(default=datetime.now)
     modified = models.DateTimeField(default=datetime.now)
     content_format = models.CharField(max_length=32, default="markdown")

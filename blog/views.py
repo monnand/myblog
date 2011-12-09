@@ -1,4 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseForbidden
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.template import RequestContext
@@ -11,6 +12,7 @@ import datetime
 import os
 import os.path
 import re
+import json
 
 from blog.models import Post, Author
 from blog.decode import decode_post, dump_html
@@ -28,17 +30,18 @@ def add_author(request):
                 msg = json.loads(msg)
                 msg['can_add_user'] = True
             else:
-                return
+                return HttpResponseForbidden("Failed\r\n")
         else:
             author = author[0]
             if author.can_add_user:
                 msg = decode_post(msg, author.decrypt_key)
             else:
-                return
+                return HttpResponseForbidden("Failed\r\n")
         new_author = Author(name=msg['name'], decrypt_key=msg['decrypt_key'], \
                 email=msg['email'], about=msg['about'], can_add_user=msg['can_add_user'])
         new_author.save()
-    return
+        return HttpResponse("Success\r\n")
+    return HttpResponseForbidden("Not implemented\r\n")
 
 def get_post(msg, create=False):
     slug = msg['slug']
@@ -90,14 +93,16 @@ def post_blog(request):
         authorname = request.POST['author']
         author = Author.objects.filter(name=authorname)
         if len(author) == 0:
-            return
+            return HttpResponseForbidden("Failed\r\n")
         author = author[0]
         msg = decode_post(msg, author.decrypt_key)
         if msg is None:
-            return
+            return HttpResponseForbidden("Failed\r\n")
         msg['author'] = author
         post = get_post(msg, True)
         if len(post.uuid) != 0:
             post = modify_post(msg, post)
         post.save()
+        return HttpResponse("Success\r\n")
+    return HttpResponseForbidden("Not implemented\r\n")
 
