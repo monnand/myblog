@@ -6,11 +6,98 @@ from django.shortcuts import render_to_response
 from django.utils.translation import activate
 from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
 import datetime
 import os
 import os.path
 import re
 
-from blog.models import Post
+from blog.models import Post, Author
+from blog.decode import decode_post, dump_html
 
+@csrf_exempt
+def add_author(request):
+    if request.method == 'POST':
+        msg = request.POST['msg']
+        authorname = request.POST['author']
+        author = Author.objects.filter(name=authorname)
+        if len(author) == 0:
+            nr_authors = Author.objects.count()
+            # This is our first author. He should be able to add users
+            if nr_authors == 0:
+                msg = json.loads(msg)
+                msg['can_add_user'] = True
+            else:
+                return
+        else:
+            author = author[0]
+            if author.can_add_user:
+                msg = decode_post(msg, author.decrypt_key)
+            else:
+                return
+        new_author = Author(name=msg['name'], decrypt_key=msg['decrypt_key'], \
+                email=msg['email'], about=msg['about'], can_add_user=msg['can_add_user'])
+        new_author.save()
+    return
+
+def get_post(msg, create=False):
+    slug = msg['slug']
+    post = Post.objects.filter(slug=slug)
+    if len(post) > 0:
+        return post[0]
+    if not create:
+        return None
+    title = msg['title']
+    content = msg['content']
+    content_format = msg['content_format']
+
+    content_html = dump_html(content, content_format)
+    now = datetime.datetime.now()
+    post = Post(title=title, \
+            author=msg['author'],   \
+            slug=slug,  \
+            created=now,    \
+            modified=now,   \
+            content_format=content_format,  \
+            content=content,    \
+            content_html=content_html,  \
+            view_count=0,   \
+            uuid="")
+    return post
+
+def modify_post(msg, post):
+    modified = False
+    if post.title != msg['title']:
+        post.title = msg['title']
+        modified = True
+    if post.content != msg['content']:
+        post.content = msg['content']
+        post.content_html = dump_html(content, content_format)
+        modified = True
+    if post.content_format != msg['content_format']:
+        post.content_format = msg['content_format']
+        post.content_html = dump_html(content, content_format)
+        modified = True
+
+    if modified:
+        post.modified = datetime.datetime.now()
+    return post
+
+@csrf_exempt
 def post_blog(request):
+    if request.method == 'POST':
+        msg = request.POST['msg']
+        authorname = request.POST['author']
+        author = Author.objects.filter(name=authorname)
+        if len(author) == 0:
+            return
+        author = author[0]
+        msg = decode_post(msg, author.decrypt_key)
+        if msg is None:
+            return
+        msg['author'] = author
+        post = get_post(msg, True)
+        if len(post.uuid) != 0:
+            post = modify_post(msg, post)
+        post.save()
+
