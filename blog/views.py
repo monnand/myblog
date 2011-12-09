@@ -22,6 +22,7 @@ def add_author(request):
     if request.method == 'POST':
         msg = request.POST['msg']
         authorname = request.POST['author']
+        key = request.POST['key']
         author = Author.objects.filter(name=authorname)
         if len(author) == 0:
             nr_authors = Author.objects.count()
@@ -34,7 +35,7 @@ def add_author(request):
         else:
             author = author[0]
             if author.can_add_user:
-                msg = decode_post(msg, author.decrypt_key)
+                msg = decode_post(msg, author.decrypt_key, key)
             else:
                 return HttpResponseForbidden("Failed\r\n")
         new_author = Author(name=msg['name'], decrypt_key=msg['decrypt_key'], \
@@ -91,6 +92,7 @@ def post_blog(request):
     if request.method == 'POST':
         msg = request.POST['msg']
         authorname = request.POST['author']
+        key = request.POST['key']
         author = Author.objects.filter(name=authorname)
         if len(author) == 0:
             return HttpResponseForbidden("Failed\r\n")
