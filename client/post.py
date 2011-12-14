@@ -1,6 +1,8 @@
 import urllib2
 import urllib
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+from Crypto import Random
 
 import json
 import base64
@@ -16,6 +18,10 @@ def load_key_value(line, data):
 
     data[key] = value
     return True
+
+def pad_msg(msg, block_size):
+    p = " "
+    return msg + (block_size - len(msg) % block_size) * p
 
 def load_blog_file(filename):
     data = {}
@@ -38,20 +44,34 @@ def load_blog_file(filename):
     jmsg = json.dumps(data)
 
     en = RSA.importKey(key)
-    encrypt_msg = en.encrypt(jmsg, "")
 
+    block_size = 32
+    #symkey = Random.new().read(block_size)
+    symkey = '12' * 16
+    b64symkey = en.encrypt(symkey, "")
+    b64symkey = base64.b64encode(b64symkey[0])
+    print "base64ed key: ", b64symkey
+
+    cipher = AES.new(symkey, AES.MODE_CBC)
+    jmsg = pad_msg(jmsg, block_size)
+    print "padded message: ", jmsg
+    encrypt_msg = cipher.encrypt(jmsg)
     b64msg = base64.b64encode(encrypt_msg)
+    print "b64ed message: ", b64msg
 
     msg = {}
     msg['msg'] = b64msg
     msg['author'] = data['author']
+    msg['key'] = b64symkey
 
     return urllib.urlencode(msg)
 
 if __name__ == "__main__":
-    url = "http://127.0.0.1:8000/post_blog/"
+    url = "http://127.0.0.1:8000/postblog/"
 
     filename = sys.argv[1]
     data = load_blog_file(filename)
-    print filename
+
+    c = urllib2.urlopen(url, data)
+    c.read()
 

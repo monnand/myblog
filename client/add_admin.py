@@ -23,6 +23,7 @@ if __name__ == "__main__":
     name = raw_input("User Name: ")
     name = name.strip()
     data['name'] = name
+    keyf = open(name + ".pem", "w+")
 
     email = raw_input("Email: ")
     email = email.strip()
@@ -35,6 +36,7 @@ if __name__ == "__main__":
     msg = {}
     msg['msg'] = json.dumps(data)
     msg['author'] = name
+    msg['key'] = ""
 
     c = urllib2.urlopen(url, urllib.urlencode(msg))
 
@@ -42,4 +44,6 @@ if __name__ == "__main__":
 
     print "--------------"
     print encrypt_key_pem
+    keyf.write(encrypt_key_pem)
+    keyf.close()
 

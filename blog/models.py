@@ -15,10 +15,11 @@ class Post(models.Model):
     title = models.CharField(max_length=256)
     author = models.ForeignKey(Author, related_name="posts")
 
-    slug = models.CharField(max_length=256, unique=True)
+    slug = models.CharField(max_length=256)
     created = models.DateTimeField(default=datetime.now)
     modified = models.DateTimeField(default=datetime.now)
     content_format = models.CharField(max_length=32, default="markdown")
+    language = models.CharField(max_length=4, default="enUS")
 
     content = models.TextField()
     content_html = models.TextField()
@@ -30,10 +31,10 @@ class Post(models.Model):
         ordering = ['-created', '-modified']
 
     def save(self, *args, **kwargs):
-        if len(post.uuid) == 0:
-            post.uuid = uuid.uuid4().hex
-        if len(post.slug) == 0:
-            post.slug = post.uuid
-        if len(post.title) == 0 or len(post.content_html) == 0:
+        if len(self.uuid) == 0:
+            self.uuid = uuid.uuid4().hex
+        if len(self.slug) == 0:
+            self.slug = self.uuid
+        if len(self.title) == 0 or len(self.content_html) == 0:
             return
         super(Post, self).save(*args, **kwargs)

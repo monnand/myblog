@@ -46,14 +46,22 @@ def add_author(request):
 
 def get_post(msg, create=False):
     slug = msg['slug']
-    post = Post.objects.filter(slug=slug)
+    language = ""
+    if msg.has_key('language'):
+        language = msg['language']
+    post = None
+    if language:
+        post = Post.objects.filter(slug=slug, language=language)
+    else:
+        post = Post.objects.filter(slug=slug)
     if len(post) > 0:
-        return post[0]
+        return post
     if not create:
         return None
     title = msg['title']
     content = msg['content']
     content_format = msg['content_format']
+    language = msg['language']
 
     content_html = dump_html(content, content_format)
     now = datetime.datetime.now()
@@ -66,8 +74,9 @@ def get_post(msg, create=False):
             content=content,    \
             content_html=content_html,  \
             view_count=0,   \
+            language=language,  \
             uuid="")
-    return post
+    return [post]
 
 def modify_post(msg, post):
     modified = False
@@ -87,9 +96,28 @@ def modify_post(msg, post):
         post.modified = datetime.datetime.now()
     return post
 
+def is_unique_post_spec(msg):
+    if msg.has_key('slug') and msg.has_key('language'):
+        return True
+    return False
+
+def is_full_post_spec(msg):
+    if not is_unique_post_spec(msg):
+        return False
+    if msg.has_key('author') \
+            and msg.has_key('content') \
+            and msg.has_key('content_format'):
+        return True
+    return False
+
 @csrf_exempt
 def post_blog(request):
     if request.method == 'POST':
+        import pdb
+        pdb.set_trace()
+        if not request.POST.has_key('msg') or \
+                not request.POST.has_key('author'):
+            return HttpResponseForbidden("Failed\r\n")
         msg = request.POST['msg']
         authorname = request.POST['author']
         key = request.POST['key']
@@ -97,11 +125,16 @@ def post_blog(request):
         if len(author) == 0:
             return HttpResponseForbidden("Failed\r\n")
         author = author[0]
-        msg = decode_post(msg, author.decrypt_key)
+        msg = decode_post(msg, author.decrypt_key, key)
         if msg is None:
+            return HttpResponseForbidden("Failed\r\n")
+        if not is_full_post_spec(msg):
             return HttpResponseForbidden("Failed\r\n")
         msg['author'] = author
         post = get_post(msg, True)
+        if len(post) <= 0:
+            return HttpResponseForbidden("Failed\r\n")
+        post = post[0]
         if len(post.uuid) != 0:
             post = modify_post(msg, post)
         post.save()
