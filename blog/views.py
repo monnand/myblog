@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http import HttpResponseForbidden
 from django.http import HttpRequest
+from django.http import Http404
 from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -113,8 +114,6 @@ def is_full_post_spec(msg):
 @csrf_exempt
 def post_blog(request):
     if request.method == 'POST':
-        import pdb
-        pdb.set_trace()
         if not request.POST.has_key('msg') or \
                 not request.POST.has_key('author'):
             return HttpResponseForbidden("Failed\r\n")
@@ -140,4 +139,16 @@ def post_blog(request):
         post.save()
         return HttpResponse("Success\r\n")
     return HttpResponseForbidden("Not implemented\r\n")
+
+def view_post_content(request, slug, lang='enUS'):
+    if request.method == 'POST':
+        return HttpResponseForbidden("Not implemented\r\n")
+    msg = {}
+    msg['slug'] = slug
+    msg['language'] = lang
+    post = get_post(msg)
+    if post is None or len(post) > 1:
+        raise Http404
+    post = post[0]
+    return render_to_response('post.html', {'post': post})
 

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8">
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <link style="text/css" rel="stylesheet" href="/static/codehilite.css">
+    <title> {% block title %} This is my blog {% endblock %} </title>
+</head>
+<body>
+    <div id="sidebar">
+        {% block sidebar %}
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+        </ul>
+        {% endblock %}
+    </div>
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -16,4 +16,6 @@ urlpatterns = patterns('',
     # url(r'^admin/', include(admin.site.urls)),
     (r'postblog/$', 'myblog.blog.views.post_blog'),
     (r'newauthor/$', 'myblog.blog.views.add_author'),
+    (r'p/([^/]+/[^/]+)', 'myblog.blog.views.view_post_content'),
+    (r'p/([^/]+)', 'myblog.blog.views.view_post_content'),
 )

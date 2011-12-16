@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %} {{ post.title }} {% endblock %}
+
+{% block content %}
+<div class="blogpost">
+    {{ post.content_html|safe }}
+    <div class="postinfo">
+        <ul>
+            <li>Created at: {{ post.created|date:"SHORT_DATETIME_FORMAT" }}</li>
+            <li>Author: 
+            <a href="author/{{ post.author.name }}">{{ post.author.name }}</a>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
