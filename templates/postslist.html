@@ -8,11 +8,13 @@
 {% for post in posts %}
 <div class="blogpost">
     <div class="postheader">
-        <h1>{{ post.title }}</h1>
+        <a href="/p/{{ post.slug }}/{{ post.language }}/"><h1>{{ post.title }}</h1></a>
     </div>
     <div class="postcontent">
         {# {{ post.content|markdown:'safe,codehilite,headerid(level=2),footnotes' }} #}
-        {{ post.content_html|safe }}
+        <p class="postabstract">
+        {{ post.abstract|safe }}
+        </p>
     </div>
     <div class="postinfo">
             Posted by 
