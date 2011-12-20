@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import markdown
 from datetime import datetime
 import uuid
+import html
 
 class Author(models.Model):
     name = models.CharField(max_length=256, unique=True)
@@ -23,6 +24,7 @@ class Post(models.Model):
 
     content = models.TextField()
     content_html = models.TextField()
+    abstract = models.TextField()
     view_count = models.IntegerField(default=0, editable=False)
 
     uuid = models.CharField(max_length=32)
@@ -37,4 +39,5 @@ class Post(models.Model):
             self.slug = self.uuid
         if len(self.title) == 0 or len(self.content_html) == 0:
             return
+        self.abstract = html.parse(url).xpath('//p/text()')[0]
         super(Post, self).save(*args, **kwargs)

@@ -6,18 +6,23 @@ from Crypto.Cipher import AES
 import base64
 
 def decode_post(msg, privkey, enckey):
-    dkey = RSA.importKey(privkey)
-    enckey = base64.b64decode(enckey)
-    key = dkey.decrypt(enckey)
-    aes = AES.new(key, AES.MODE_CBC)
-    msg = base64.b64decode(msg)
-    msg = aes.decrypt(msg)
-    msg = msg.strip()
-    msg = json.loads(msg)
-    return msg
+    try:
+        dkey = RSA.importKey(privkey)
+        enckey = base64.b64decode(enckey)
+        key = dkey.decrypt(enckey)
+        aes = AES.new(key, AES.MODE_CBC)
+        msg = base64.b64decode(msg)
+        msg = aes.decrypt(msg)
+        msg = msg.strip()
+        msg = json.loads(msg)
+        return msg
+    except:
+        return None
 
 def dump_html(content, content_format):
-    ret = markdown.markdown(content)
+    md = markdown.Markdown(extensions = ['footnotes', \
+            'codehilite', 'headerid(level=2)'])
+    ret = md.convert(content)
     return ret
 
 

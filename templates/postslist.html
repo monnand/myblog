@@ -3,6 +3,9 @@
 {% load markup %}
 
 {% block content %}
+
+<div class="postslist">
+{% for post in posts %}
 <div class="blogpost">
     <div class="postheader">
         <h1>{{ post.title }}</h1>
@@ -17,6 +20,15 @@
             {{ post.created|date:"SHORT_DATETIME_FORMAT" }}
         </ul>
     </div>
+</div>
+{% endfor %}
+</div>
+
+<div class="pagelist">
+    pages: 
+    {% for pgn in pages %}
+    <a href="/l/{{pgn}}/{{postsperpage}}/">{{pgn}}</a>
+    {% endfor %}
 </div>
 {% endblock %}
 

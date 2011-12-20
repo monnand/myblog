@@ -86,11 +86,13 @@ def modify_post(msg, post):
         modified = True
     if post.content != msg['content']:
         post.content = msg['content']
-        post.content_html = dump_html(content, content_format)
+        if post.content_format != msg['content_format']:
+            post.content_format = msg['content_format']
+        post.content_html = dump_html(post.content, post.content_format)
         modified = True
     if post.content_format != msg['content_format']:
         post.content_format = msg['content_format']
-        post.content_html = dump_html(content, content_format)
+        post.content_html = dump_html(post.content, post.content_format)
         modified = True
 
     if modified:
@@ -151,4 +153,21 @@ def view_post_content(request, slug, lang='enUS'):
         raise Http404
     post = post[0]
     return render_to_response('post.html', {'post': post})
+
+def view_posts_list(request, page_nr = 1, post_per_page = 10):
+    if request.method == 'POST':
+        return HttpResponseForbidden("Not implemented\r\n")
+    page_nr = int(page_nr) - 1
+    if page_nr < 0:
+        page_nr = 0
+    post_per_page = int(post_per_page)
+    start = int(page_nr) * int(post_per_page)
+    end = start + int(post_per_page)
+    posts = Post.objects.all()[start:end]
+    nr_posts = Post.objects.count()
+    nr_pages = nr_posts/post_per_page
+    if nr_posts % post_per_page:
+        nr_pages += 1
+    return render_to_response('postslist.html', {'posts': posts, \
+            'pages':range(1, nr_pages + 1), 'postsperpage': post_per_page})
 
