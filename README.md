@@ -1,4 +1,5 @@
-= My Blog =
+# My Blog 
+
 This is the source code of my blog. Nothing fancy here.
 
 It might be a good place if you want to learn something about Django.
