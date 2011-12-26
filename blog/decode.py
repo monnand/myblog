@@ -21,7 +21,7 @@ def decode_post(msg, privkey, enckey):
 
 def dump_html(content, content_format):
     md = markdown.Markdown(extensions = ['footnotes', \
-            'codehilite', 'headerid(level=2)'])
+            'codehilite', 'headerid(level=3)'])
     ret = md.convert(content)
     return ret
 

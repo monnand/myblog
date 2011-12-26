@@ -4,33 +4,36 @@
 
 {% block content %}
 
-<div class="postslist">
 {% for post in posts %}
-<div class="blogpost">
-    <div class="postheader">
-        <a href="/p/{{ post.slug }}/{{ post.language }}/"><h1>{{ post.title }}</h1></a>
-    </div>
-    <div class="postcontent">
+<div class="post">
+    <h2 class="title">
+        <a href="/p/{{ post.slug }}/{{ post.language }}/">
+            {{ post.title }}
+        </a>
+    </h2>
+    <div class="entry">
         {# {{ post.content|markdown:'safe,codehilite,headerid(level=2),footnotes' }} #}
-        <p class="postabstract">
         {{ post.abstract|safe }}
-        </p>
     </div>
-    <div class="postinfo">
-            Posted by 
-            <a href="author/{{ post.author.name }}">{{ post.author.name }}</a> at 
+    <div class="byline">
+        <p class="meta">
             {{ post.created|date:"SHORT_DATETIME_FORMAT" }}
-        </ul>
+            by 
+            <a href="author/{{ post.author.name }}">{{ post.author.name }}</a> 
+        </p>
+        <p class="links">
+            <a href="/p/{{ post.slug }}/{{ post.language }}/">Read More</a>
+        </p>
     </div>
 </div>
 {% endfor %}
-</div>
 
 <div class="pagelist">
-    pages: 
+    Pages: 
     {% for pgn in pages %}
-    <a href="/l/{{pgn}}/{{postsperpage}}/">{{pgn}}</a>
+    <a href="/l/{{pgn}}/{{postsperpage}}/">{{pgn}}</a>, 
     {% endfor %}
 </div>
+<div style="clear: both;">&nbsp;</div>
 {% endblock %}
 

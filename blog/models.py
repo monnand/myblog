@@ -5,12 +5,33 @@ from datetime import datetime
 import uuid
 from lxml import html
 
+class BlogConfig(models.Model):
+    title = models.TextField()
+    subtitle = models.TextField()
+    nr_posts_per_page = models.IntegerField(default=10)
+
+    _blog_config = None
+
+    @staticmethod
+    def get():
+        if BlogConfig._blog_config is None:
+            bc = BlogConfig.objects.all()
+            if len(bc) == 0:
+                BlogConfig._blog_config = BlogConfig(title="My Blog",
+                        subtitle='This is my blog',
+                        nr_posts_per_page = 10)
+                BlogConfig._blog_config.save()
+            else:
+                BlogConfig._blog_config = bc[0]
+        return BlogConfig._blog_config
+
 class Author(models.Model):
     name = models.CharField(max_length=256, unique=True)
     decrypt_key = models.CharField(max_length=1024)
     email = models.EmailField()
     about = models.TextField()
     can_add_user = models.BooleanField(default=False)
+    can_set_config = models.BooleanField(default=False)
 
 class Post(models.Model):
     title = models.CharField(max_length=256)

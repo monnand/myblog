@@ -3,19 +3,22 @@
 {% load markup %}
 
 {% block content %}
-<div class="blogpost">
-    <div class="postheader">
-        <h1>{{ post.title }}</h1>
-    </div>
-    <div class="postcontent">
+<div class="post">
+    <h2 class="title">
+        <a href="/p/{{ post.slug }}/{{ post.language }}/">
+            {{ post.title }}
+        </a>
+    </h2>
+    <div class="entry">
         {# {{ post.content|markdown:'safe,codehilite,headerid(level=2),footnotes' }} #}
         {{ post.content_html|safe }}
     </div>
-    <div class="postinfo">
-            Posted by 
-            <a href="author/{{ post.author.name }}">{{ post.author.name }}</a> at 
+    <div class="byline">
+        <p class="meta">
             {{ post.created|date:"SHORT_DATETIME_FORMAT" }}
-        </ul>
+            by 
+            <a href="author/{{ post.author.name }}">{{ post.author.name }}</a> 
+        </p>
     </div>
 </div>
 {% endblock %}

@@ -15,8 +15,35 @@ import os.path
 import re
 import json
 
-from blog.models import Post, Author
+from blog.models import Post, Author, BlogConfig
 from blog.decode import decode_post, dump_html
+
+def get_blog_config():
+    return BlogConfig.get()
+
+@csrf_exempt
+def set_config(request):
+    if request.method == 'POST':
+        msg = request.POST['msg']
+        authorname = request.POST['author']
+        key = request.POST['key']
+        author = Author.objects.filter(name=authorname)
+        if len(author) == 0:
+            return HttpResponseForbidden("Failed\r\n")
+        author = author[0]
+        if not author.can_set_config:
+            return HttpResponseForbidden("Failed\r\n")
+        msg = decode_post(msg, author.decrypt_key, key)
+        bc = get_blog_config()
+        if msg.has_key('title'):
+            bc.title = msg['title']
+        if msg.has_key('subtitlte'):
+            bc.subtitle = msg['subtitle']
+        if msg.has_key('nr_posts_per_page'):
+            bc.nr_posts_per_page = int(msg['nr_posts_per_page'])
+        bc.save()
+        return HttpResponse("Success\r\n")
+    return HttpResponseForbidden("Not implemented\r\n")
 
 @csrf_exempt
 def add_author(request):
@@ -31,16 +58,21 @@ def add_author(request):
             if nr_authors == 0:
                 msg = json.loads(msg)
                 msg['can_add_user'] = True
+                msg['can_set_config'] = True
             else:
                 return HttpResponseForbidden("Failed\r\n")
         else:
             author = author[0]
             if author.can_add_user:
                 msg = decode_post(msg, author.decrypt_key, key)
+                if not msg.has_key('can_set_config'):
+                    msg['can_set_config'] = False
             else:
                 return HttpResponseForbidden("Failed\r\n")
         new_author = Author(name=msg['name'], decrypt_key=msg['decrypt_key'], \
-                email=msg['email'], about=msg['about'], can_add_user=msg['can_add_user'])
+                email=msg['email'], about=msg['about'], \
+                can_add_user=msg['can_add_user'], \
+                can_set_config=msg['can_set_config'])
         new_author.save()
         return HttpResponse("Success\r\n")
     return HttpResponseForbidden("Not implemented\r\n")
@@ -152,7 +184,8 @@ def view_post_content(request, slug, lang='enUS'):
     if post is None or len(post) > 1:
         raise Http404
     post = post[0]
-    return render_to_response('post.html', {'post': post})
+    bc = get_blog_config()
+    return render_to_response('post.html', {'config':bc, 'post': post})
 
 def view_posts_list(request, page_nr = 1, post_per_page = 10):
     if request.method == 'POST':
@@ -168,6 +201,8 @@ def view_posts_list(request, page_nr = 1, post_per_page = 10):
     nr_pages = nr_posts/post_per_page
     if nr_posts % post_per_page:
         nr_pages += 1
-    return render_to_response('postslist.html', {'posts': posts, \
+    bc = get_blog_config()
+    return render_to_response('postslist.html', {'config': bc, \
+            'posts': posts, \
             'pages':range(1, nr_pages + 1), 'postsperpage': post_per_page})
 

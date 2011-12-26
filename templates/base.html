@@ -4,19 +4,51 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <link style="text/css" rel="stylesheet" href="/static/codehilite.css">
+    <link style="text/css" rel="stylesheet" href="/static/programme.css">
     <title> {% block title %} This is my blog {% endblock %} </title>
 </head>
 <body>
-    <div id="sidebar">
-        {% block sidebar %}
-        <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-        </ul>
-        {% endblock %}
+    <div id="wrapper">
+        <div id="header-wrapper">
+            <div id="header">
+                <div id="logo">
+                    <h1><a href="/">{{ config.title }}</a></h1>
+                    <p> {{ config.subtitle }} </p>
+                </div>
+                <div id="menu">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- end #header-wrapper -->
+        <div id="page">
+            <div id="page-bgtop">
+                <div id="page-bgbtm">
+                    <div id="content">
+                        {% block content %}{% endblock content %}
+                    </div>
+                    <!-- end #content -->
+                    <div id="sidebar">
+                        <ul>
+                            <li>
+                                <h2>Tags</h2>
+                                <ul>
+                                    <li><a href="/">MyTag</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- end #sidebar -->
+                    <div style="clear: both;">&nbsp;</div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="content">
-        {% block content %}{% endblock %}
+    <div id="footer">
+        <p>Copyright (c) 2008</p>
     </div>
 </body>
 </html>
