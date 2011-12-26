@@ -33,6 +33,13 @@ class Author(models.Model):
     can_add_user = models.BooleanField(default=False)
     can_set_config = models.BooleanField(default=False)
 
+class Tag(models.Model):
+    tag = models.TextField(unique=True)
+    nr_refs = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-nr_refs']
+
 class Post(models.Model):
     title = models.CharField(max_length=256)
     author = models.ForeignKey(Author, related_name="posts")
@@ -49,6 +56,8 @@ class Post(models.Model):
     view_count = models.IntegerField(default=0, editable=False)
 
     uuid = models.CharField(max_length=32)
+
+    tags = models.ManyToManyField(Tag)
 
     class Meta:
         ordering = ['-created', '-modified']

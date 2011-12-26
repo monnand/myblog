@@ -15,7 +15,7 @@ import os.path
 import re
 import json
 
-from blog.models import Post, Author, BlogConfig
+from blog.models import Post, Author, BlogConfig, Tag
 from blog.decode import decode_post, dump_html
 
 def get_blog_config():
@@ -109,7 +109,21 @@ def get_post(msg, create=False):
             view_count=0,   \
             language=language,  \
             uuid="")
+    post.save()
+    if msg.has_key("tags"):
+        for tag in msg['tags']:
+            t = get_tag(tag)
+            t.nr_refs += 1
+            t.save()
+            post.tags.add(t)
     return [post]
+
+def get_tag(tag):
+    try:
+        ret = Tag.objects.get(tag=tag)
+    except:
+        ret = Tag(tag=tag, nr_refs=0)
+    return ret
 
 def modify_post(msg, post):
     modified = False
@@ -174,6 +188,12 @@ def post_blog(request):
         return HttpResponse("Success\r\n")
     return HttpResponseForbidden("Not implemented\r\n")
 
+def render_to_resp(template, kv):
+    bc = BlogConfig.get()
+    meta = {'config':bc}
+    meta.update(kv)
+    return render_to_response(template, meta)
+
 def view_post_content(request, slug, lang='enUS'):
     if request.method == 'POST':
         return HttpResponseForbidden("Not implemented\r\n")
@@ -184,25 +204,34 @@ def view_post_content(request, slug, lang='enUS'):
     if post is None or len(post) > 1:
         raise Http404
     post = post[0]
-    bc = get_blog_config()
-    return render_to_response('post.html', {'config':bc, 'post': post})
+    return render_to_resp('post.html', {'post': post})
 
-def view_posts_list(request, page_nr = 1, post_per_page = 10):
+def view_posts_list(request, page_nr = 1, lang = 'all'):
     if request.method == 'POST':
         return HttpResponseForbidden("Not implemented\r\n")
+    bc = get_blog_config()
+    post_per_page = bc.nr_posts_per_page
     page_nr = int(page_nr) - 1
     if page_nr < 0:
         page_nr = 0
-    post_per_page = int(post_per_page)
-    start = int(page_nr) * int(post_per_page)
-    end = start + int(post_per_page)
-    posts = Post.objects.all()[start:end]
-    nr_posts = Post.objects.count()
+    start = int(page_nr) * post_per_page
+    end = start + post_per_page
+    posts = []
+    if len(lang) != 4:
+        posts = Post.objects.all()
+        lang = 'all'
+    else:
+        posts = Post.objects.filter(language=lang)
+    nr_posts = posts.count()
     nr_pages = nr_posts/post_per_page
     if nr_posts % post_per_page:
         nr_pages += 1
-    bc = get_blog_config()
-    return render_to_response('postslist.html', {'config': bc, \
-            'posts': posts, \
-            'pages':range(1, nr_pages + 1), 'postsperpage': post_per_page})
+    return render_to_resp('postslist.html', {'posts': posts[start:end], \
+            'pages':range(1, nr_pages + 1), 'lang': lang})
 
+def view_author(request, authorname):
+    author = Author.objects.filter(name=authorname)
+    if len(author) == 0:
+        raise Http404
+    author = author[0]
+    return render_to_resp('author.html', {'author':author})

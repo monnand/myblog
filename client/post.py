@@ -16,6 +16,9 @@ def load_key_value(line, data):
     key = pair[0].lower()
     value = pair[1].strip()
 
+    if key == 'tags':
+        value = json.loads(value)
+
     data[key] = value
     return True
 

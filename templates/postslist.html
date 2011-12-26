@@ -11,6 +11,16 @@
             {{ post.title }}
         </a>
     </h2>
+
+	<div class="tags">
+		<p>
+		<b>Tags:</b> 
+		{% for tag in post.tags.all %}
+			<a href="/tag/{{ tag.id }}/">{{ tag.tag }}</a>, 
+		{% endfor %}
+		</p>
+	</div>
+
     <div class="entry">
         {# {{ post.content|markdown:'safe,codehilite,headerid(level=2),footnotes' }} #}
         {{ post.abstract|safe }}
@@ -31,7 +41,7 @@
 <div class="pagelist">
     Pages: 
     {% for pgn in pages %}
-    <a href="/l/{{pgn}}/{{postsperpage}}/">{{pgn}}</a>, 
+    <a href="/l/{{pgn}}/{{lang}}/">{{pgn}}</a>, 
     {% endfor %}
 </div>
 <div style="clear: both;">&nbsp;</div>
