@@ -9,6 +9,7 @@ class BlogConfig(models.Model):
     title = models.TextField()
     subtitle = models.TextField()
     nr_posts_per_page = models.IntegerField(default=10)
+    link = models.TextField()
 
     _blog_config = None
 
@@ -19,7 +20,8 @@ class BlogConfig(models.Model):
             if len(bc) == 0:
                 BlogConfig._blog_config = BlogConfig(title="My Blog",
                         subtitle='This is my blog',
-                        nr_posts_per_page = 10)
+                        nr_posts_per_page = 10,
+                        link = "http://127.0.0.1:8000/")
                 BlogConfig._blog_config.save()
             else:
                 BlogConfig._blog_config = bc[0]
@@ -58,6 +60,7 @@ class Post(models.Model):
     uuid = models.CharField(max_length=32)
 
     tags = models.ManyToManyField(Tag)
+    allow_comment = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['-created', '-modified']
@@ -72,3 +75,22 @@ class Post(models.Model):
         doc = html.document_fromstring(self.content_html)
         self.abstract = doc.xpath('//p/text()')[0]
         super(Post, self).save(*args, **kwargs)
+
+class Reader(models.Model):
+    name = models.CharField(max_length=64)
+    email = models.EmailField()
+    url = models.URLField()
+
+class Comment(models.Model):
+    reader = models.ForeignKey(Reader)
+    post = models.ForeignKey(Post)
+    content = models.TextField()
+    created = models.DateTimeField(default=datetime.now)
+    class Meta:
+        ordering = ['-created']
+
+#class PostImage(models.Model):
+#    post = models.ForeignKey(Post)
+#    image = models.ImageField(max_length = 256)
+
+

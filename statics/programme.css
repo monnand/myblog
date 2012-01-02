@@ -255,6 +255,47 @@ a:hover {
 .links a {
 }
 
+/* Comment */
+
+.comment {
+	margin-bottom: 30px;
+	border-bottom: 1px solid #D1D9F0;
+}
+
+.comment .title {
+	height: 41px;
+	padding: 0px 0px 0px 0px;
+
+	letter-spacing: -1px;
+}
+
+.comment .title a {
+	text-decoration: none;
+	color: #293D75;
+	border: none;
+}
+
+.comment .content {
+	background: url(images/img04.jpg) no-repeat left 30px;
+	padding: 20px 30px 20px 30px;
+	padding-bottom: 20px;
+	text-align: justify;
+}
+
+.comment .byline {
+	clear: both;
+	overflow: hidden;
+	padding-bottom: 20px;
+}
+
+.comment .meta {
+	float: left;
+}
+
+.comment .links {
+	float: right;
+}
+
 /* Sidebar */
 
 #sidebar {

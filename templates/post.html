@@ -29,5 +29,31 @@
         </p>
     </div>
 </div>
+<div class="comments">
+	<h2 class="title">
+		Comments
+	</h2>
+	{% for comment in comments %}
+	<div class="comment">
+		<h3>
+			<a href={{ comment.url }}>{{ comment.reader.name }}</a> says...
+		</h3>
+		<div class="content">
+			<p>
+				{{ comment.content }}
+			</p>
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% if post.allow_comment %}
+<div class="commentInput">
+	<form action="/postcomment/{{ post.id }}/" method="post">
+		{{ commentform.as_p }}
+		<input type="submit" value="Post">
+	</form>
+</div>
+{% endif %}
+
 {% endblock %}
 

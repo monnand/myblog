@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import patterns, include, url
+from myblog.blog.views import BlogFeed
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -19,5 +20,8 @@ urlpatterns = patterns('',
     (r'postblog/$', 'myblog.blog.views.post_blog'),
     (r'newauthor/$', 'myblog.blog.views.add_author'),
     (r'p/([^/]+)/([^/]*)', 'myblog.blog.views.view_post_content'),
+    (r'id/(\d+)', 'myblog.blog.views.view_post_by_id'),
     (r'author/([^/]+)/', 'myblog.blog.views.view_author'),
+    (r'feed/$', BlogFeed()),
+    (r'postcomment/(\d+)/$', 'myblog.blog.views.post_comment'),
 )

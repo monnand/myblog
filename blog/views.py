@@ -9,14 +9,48 @@ from django.utils.translation import activate
 from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
+
+from django.contrib.syndication.views import Feed
+from django.contrib.sites.models import get_current_site
+
 import datetime
 import os
 import os.path
 import re
 import json
 
-from blog.models import Post, Author, BlogConfig, Tag
+from blog.models import Post, Author, BlogConfig, Tag, Reader, Comment
 from blog.decode import decode_post, dump_html
+from blog.forms import PostCommentForm
+
+class BlogFeed(Feed):
+    def title(self):
+        bc = BlogConfig.get()
+        return bc.title
+    def description(self):
+        bc = BlogConfig.get()
+        return bc.subtitle
+
+    def link(self):
+        bc = BlogConfig.get()
+        return bc.link
+    def items(self):
+        ret = Post.objects.all()[:100]
+        return ret
+    def item_title(self, item):
+        return str(item.title)
+    def item_description(self, item):
+        return item.content_html
+    def item_link(self, item):
+        bc = BlogConfig.get()
+        url = os.path.join(bc.link, "p", item.slug, item.language)
+        return url
+    def item_author_name(self, item):
+        return item.author.name
+    def item_author_email(self, item):
+        return item.author.email
+    def item_pubdate(self, item):
+        return item.created
 
 def get_blog_config():
     return BlogConfig.get()
@@ -98,6 +132,9 @@ def get_post(msg, create=False):
 
     content_html = dump_html(content, content_format)
     now = datetime.datetime.now()
+    allow_comment = True
+    if msg.has_key('allow_comment'):
+        allow_comment = bool(msg['allow_comment'])
     post = Post(title=title, \
             author=msg['author'],   \
             slug=slug,  \
@@ -108,7 +145,8 @@ def get_post(msg, create=False):
             content_html=content_html,  \
             view_count=0,   \
             language=language,  \
-            uuid="")
+            uuid="",    \
+            allow_comment=allow_comment)
     post.save()
     if msg.has_key("tags"):
         for tag in msg['tags']:
@@ -194,6 +232,42 @@ def render_to_resp(template, kv):
     meta.update(kv)
     return render_to_response(template, meta)
 
+def post_comment(request, postid):
+    if request.method == 'POST':
+        post = Post.objects.filter(id=int(postid))
+        if len(post) == 0:
+            raise Http404
+        post = post[0]
+        form = PostCommentForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            url = form.cleaned_data['url']
+            email = form.cleaned_data['email']
+            content= form.cleaned_data['content']
+            now = datetime.datetime.now()
+            reader = Reader.objects.filter(name=name)
+
+            if len(reader) == 0:
+                reader = Reader(name=name, url=url, email=email)
+                reader.save()
+            else:
+                reader = reader[0]
+                if len(url) != 0:
+                    if reader.url != url:
+                        reader.url = url
+                if len(email) != 0:
+                    if reader.email != email:
+                        reader.email = email
+                reader.save()
+            comment = Comment(reader=reader, \
+                    post=post,\
+                    content=content, \
+                    created=now)
+            comment.save()
+            return HttpResponseRedirect('/id/' + postid)
+
+    return HttpResponseForbidden("Not implemented\r\n")
+
 def view_post_content(request, slug, lang='enUS'):
     if request.method == 'POST':
         return HttpResponseForbidden("Not implemented\r\n")
@@ -204,7 +278,23 @@ def view_post_content(request, slug, lang='enUS'):
     if post is None or len(post) > 1:
         raise Http404
     post = post[0]
-    return render_to_resp('post.html', {'post': post})
+    comments = Comment.objects.filter(post__id=post.id)
+    form = PostCommentForm()
+    return render_to_resp('post.html', \
+            {'post': post, 'commentform':form, 'comments':comments})
+
+def view_post_by_id(request, postid):
+    if request.method == 'POST':
+        return HttpResponseForbidden("Not implemented\r\n")
+    post = Post.objects.filter(id=postid)
+    if len(post) == 0:
+        raise Http404
+    post = post[0]
+    comments = Comment.objects.filter(post__id=post.id)
+    form = PostCommentForm()
+    return render_to_resp('post.html', \
+            {'post': post, 'commentform':form, 'comments':comments})
+
 
 def view_posts_list(request, page_nr = 1, lang = 'all'):
     if request.method == 'POST':
