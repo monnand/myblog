@@ -5,13 +5,19 @@ from datetime import datetime
 import uuid
 from lxml import html
 
+from captcha.CaptchasDotNet import CaptchasDotNet
+
 class BlogConfig(models.Model):
     title = models.TextField()
     subtitle = models.TextField()
     nr_posts_per_page = models.IntegerField(default=10)
     link = models.TextField()
 
+    captcha_name = models.CharField(default='', max_length = 128)
+    captcha_secret = models.CharField(default='', max_length = 128)
+
     _blog_config = None
+    _captcha = None
 
     @staticmethod
     def get():
@@ -26,6 +32,16 @@ class BlogConfig(models.Model):
             else:
                 BlogConfig._blog_config = bc[0]
         return BlogConfig._blog_config
+
+    @staticmethod
+    def get_captcha():
+        if BlogConfig._captcha is None:
+            bc = BlogConfig.get()
+            if len(bc.captcha_name) == 0 or len(bc.captcha_secret) == 0:
+                return None
+            BlogConfig._captcha = CaptchasDotNet(client=bc.captcha_name,
+                    secret=bc.captcha_secret)
+        return BlogConfig._captcha
 
 class Author(models.Model):
     name = models.CharField(max_length=256, unique=True)

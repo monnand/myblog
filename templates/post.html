@@ -36,7 +36,11 @@
 	{% for comment in comments %}
 	<div class="comment">
 		<h3>
-			<a href={{ comment.url }}>{{ comment.reader.name }}</a> says...
+            {% if comment.reader.url %}
+			<a href={{ comment.reader.url }}>{{ comment.reader.name }}</a> says...
+            {% else %}
+            <b>{{ comment.reader.name }}</b> says...
+            {% endif %}
 		</h3>
 		<div class="content">
 			<p>
@@ -48,9 +52,14 @@
 </div>
 {% if post.allow_comment %}
 <div class="commentInput">
+    {% if errormsg %}
+    <p><b>{{ errormsg }}</b></p>
+    {% endif %}
 	<form action="/postcomment/{{ post.id }}/" method="post">
-		{{ commentform.as_p }}
-		<input type="submit" value="Post">
+		{{ commentform.as_p}}
+        <p> {{ captcha_img|safe }} </p>
+        <p> <a href="{{ captcha_audio }}">Phonetic spelling (mp3)</a> 
+        <p><input type="submit" value="Post"></p>
 	</form>
 </div>
 {% endif %}

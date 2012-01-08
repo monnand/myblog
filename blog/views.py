@@ -9,6 +9,7 @@ from django.utils.translation import activate
 from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
+import django
 
 from django.contrib.syndication.views import Feed
 from django.contrib.sites.models import get_current_site
@@ -22,6 +23,7 @@ import json
 from blog.models import Post, Author, BlogConfig, Tag, Reader, Comment
 from blog.decode import decode_post, dump_html
 from blog.forms import PostCommentForm
+from captcha.CaptchasDotNet import CaptchasDotNet
 
 class BlogFeed(Feed):
     def title(self):
@@ -75,6 +77,10 @@ def set_config(request):
             bc.subtitle = msg['subtitle']
         if msg.has_key('nr_posts_per_page'):
             bc.nr_posts_per_page = int(msg['nr_posts_per_page'])
+        if msg.has_key('captcha_name'):
+            bc.captcha_name = msg['captcha_name']
+        if msg.has_key('captcha_secret'):
+            bc.captcha_secret = msg['captcha_secret']
         bc.save()
         return HttpResponse("Success\r\n")
     return HttpResponseForbidden("Not implemented\r\n")
@@ -244,8 +250,17 @@ def post_comment(request, postid):
             url = form.cleaned_data['url']
             email = form.cleaned_data['email']
             content= form.cleaned_data['content']
+            password = form.cleaned_data['password']
+            random = request.POST['random']
             now = datetime.datetime.now()
             reader = Reader.objects.filter(name=name)
+
+            captcha = BlogConfig.get_captcha()
+            if captcha is not None:
+                if not captcha.validate(random):
+                    return HttpResponseRedirect('/id/' + postid + "/captchaerr")
+                if not captcha.verify(password):
+                    return HttpResponseRedirect('/id/' + postid + "/captchaerr")
 
             if len(reader) == 0:
                 reader = Reader(name=name, url=url, email=email)
@@ -280,10 +295,17 @@ def view_post_content(request, slug, lang='enUS'):
     post = post[0]
     comments = Comment.objects.filter(post__id=post.id)
     form = PostCommentForm()
+    captcha = BlogConfig.get_captcha()
+    random = captcha.random()
+    form.fields['random'] = django.forms.CharField(initial=random, \
+            widget=django.forms.widgets.HiddenInput())
     return render_to_resp('post.html', \
-            {'post': post, 'commentform':form, 'comments':comments})
+            {'post': post, 'commentform':form, 'comments':comments, \
+            'captcha_img': captcha.image(), \
+            'captcha_audio': captcha.audio_url(), \
+            'errormsg': ''})
 
-def view_post_by_id(request, postid):
+def view_post_by_id(request, postid, err = ''):
     if request.method == 'POST':
         return HttpResponseForbidden("Not implemented\r\n")
     post = Post.objects.filter(id=postid)
@@ -292,8 +314,19 @@ def view_post_by_id(request, postid):
     post = post[0]
     comments = Comment.objects.filter(post__id=post.id)
     form = PostCommentForm()
+    captcha = BlogConfig.get_captcha()
+    random = captcha.random()
+    form.fields['random'] = django.forms.CharField(initial=random, \
+            widget=django.forms.widgets.HiddenInput())
+    errormsg = ''
+    if err == 'captchaerr':
+        errormsg = 'Wrong Captcha. Please input again'
     return render_to_resp('post.html', \
-            {'post': post, 'commentform':form, 'comments':comments})
+            {'post': post, 'commentform':form, 'comments':comments, \
+            'captcha_img': captcha.image(), \
+            'captcha_audio': captcha.audio_url(), \
+            'errormsg': errormsg})
+
 
 
 def view_posts_list(request, page_nr = 1, lang = 'all'):

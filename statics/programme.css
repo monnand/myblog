@@ -73,7 +73,7 @@ a:hover {
 
 #logo {
 	float: left;
-	width: 350px;
+	width: 550px;
 	margin: 0;
 	padding: 0;
 	color: #000000;
@@ -86,7 +86,6 @@ a:hover {
 	margin-left: 30px;
 	padding: 0px 0px 0px 0px;
 	letter-spacing: -1px;
-	text-transform: lowercase;
 	font-size: 3.8em;
 	color: #FF3000;
 }
