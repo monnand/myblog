@@ -35,8 +35,6 @@ def load_settings(filename):
     kf = open(data['key'], "r")
     del data['key']
 
-    import pdb
-    pdb.set_trace()
     key = kf.read()
     kf.close()
 

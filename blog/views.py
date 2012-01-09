@@ -73,7 +73,7 @@ def set_config(request):
         bc = get_blog_config()
         if msg.has_key('title'):
             bc.title = msg['title']
-        if msg.has_key('subtitlte'):
+        if msg.has_key('subtitle'):
             bc.subtitle = msg['subtitle']
         if msg.has_key('nr_posts_per_page'):
             bc.nr_posts_per_page = int(msg['nr_posts_per_page'])
