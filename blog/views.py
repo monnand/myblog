@@ -283,6 +283,21 @@ def post_comment(request, postid):
 
     return HttpResponseForbidden("Not implemented\r\n")
 
+def respond_post(post):
+    comments = Comment.objects.filter(post__id=post.id)
+    form = PostCommentForm()
+    captcha = BlogConfig.get_captcha()
+    random = captcha.random()
+    form.fields['random'] = django.forms.CharField(initial=random, \
+            widget=django.forms.widgets.HiddenInput())
+    nr_comments = len(comments)
+    return render_to_resp('post.html', \
+            {'post': post, 'commentform':form, 'comments':comments, \
+            'captcha_img': captcha.image(), \
+            'captcha_audio': captcha.audio_url(), \
+            'errormsg': '', 'nr_comments':nr_comments})
+
+
 def view_post_content(request, slug, lang='enUS'):
     if request.method == 'POST':
         return HttpResponseForbidden("Not implemented\r\n")
@@ -293,17 +308,7 @@ def view_post_content(request, slug, lang='enUS'):
     if post is None or len(post) > 1:
         raise Http404
     post = post[0]
-    comments = Comment.objects.filter(post__id=post.id)
-    form = PostCommentForm()
-    captcha = BlogConfig.get_captcha()
-    random = captcha.random()
-    form.fields['random'] = django.forms.CharField(initial=random, \
-            widget=django.forms.widgets.HiddenInput())
-    return render_to_resp('post.html', \
-            {'post': post, 'commentform':form, 'comments':comments, \
-            'captcha_img': captcha.image(), \
-            'captcha_audio': captcha.audio_url(), \
-            'errormsg': ''})
+    return respond_post(post)
 
 def view_post_by_id(request, postid, err = ''):
     if request.method == 'POST':
@@ -312,22 +317,7 @@ def view_post_by_id(request, postid, err = ''):
     if len(post) == 0:
         raise Http404
     post = post[0]
-    comments = Comment.objects.filter(post__id=post.id)
-    form = PostCommentForm()
-    captcha = BlogConfig.get_captcha()
-    random = captcha.random()
-    form.fields['random'] = django.forms.CharField(initial=random, \
-            widget=django.forms.widgets.HiddenInput())
-    errormsg = ''
-    if err == 'captchaerr':
-        errormsg = 'Wrong Captcha. Please input again'
-    return render_to_resp('post.html', \
-            {'post': post, 'commentform':form, 'comments':comments, \
-            'captcha_img': captcha.image(), \
-            'captcha_audio': captcha.audio_url(), \
-            'errormsg': errormsg})
-
-
+    return respond_post(post)
 
 def view_posts_list(request, page_nr = 1, lang = 'all'):
     if request.method == 'POST':

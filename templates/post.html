@@ -30,18 +30,18 @@
     </div>
 </div>
 <div class="comments">
-	<h2 class="title">
-		Comments
-	</h2>
+	<h3 class="title">
+        {{nr_comments}} comments
+	</h3>
 	{% for comment in comments %}
 	<div class="comment">
-		<h3>
+		<h4>
             {% if comment.reader.url %}
 			<a href={{ comment.reader.url }}>{{ comment.reader.name }}</a> says...
             {% else %}
             <b>{{ comment.reader.name }}</b> says...
             {% endif %}
-		</h3>
+		</h4>
 		<div class="content">
 			<p>
 				{{ comment.content }}
