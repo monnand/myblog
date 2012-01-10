@@ -3,12 +3,17 @@ import urllib
 from Crypto.PublicKey import RSA
 from Crypto import Random
 import json
+import sys
 
 # private key is decrypt key.
 # public key is encrypt key.
 
 if __name__ == "__main__":
     url = "http://127.0.0.1:8000/newauthor/"
+
+    if len(sys.argv) > 1:
+        url = "http://" + sys.argv[1] + "/newauthor/"
+
     data = {}
     rng = Random.new().read
 

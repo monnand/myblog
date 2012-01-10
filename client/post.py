@@ -71,6 +71,8 @@ def load_blog_file(filename):
 
 if __name__ == "__main__":
     url = "http://127.0.0.1:8000/postblog/"
+    if len(sys.argv) > 2:
+        url = "http://" + sys.argv[2] + "/postblog/"
 
     filename = sys.argv[1]
     data = load_blog_file(filename)

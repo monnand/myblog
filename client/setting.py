@@ -66,6 +66,9 @@ def load_settings(filename):
 if __name__ == "__main__":
     url = "http://127.0.0.1:8000/settings/"
 
+    if len(sys.argv) > 2:
+        url = "http://" + sys.argv[2] + "/settings/"
+
     filename = sys.argv[1]
     data = load_settings(filename)
 
