@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.utils.translation import activate
 from django.utils.translation import get_language
 from django.utils.translation import ugettext as _
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 import django
 
 from django.contrib.syndication.views import Feed
@@ -238,6 +238,7 @@ def render_to_resp(template, kv):
     meta.update(kv)
     return render_to_response(template, meta)
 
+@csrf_exempt
 def post_comment(request, postid):
     if request.method == 'POST':
         post = Post.objects.filter(id=int(postid))

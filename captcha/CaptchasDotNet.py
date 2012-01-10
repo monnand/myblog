@@ -23,7 +23,7 @@
 #---------------------------------------------------------------------
 
 import os
-import md5
+import hashlib
 import random
 import time
 
@@ -210,7 +210,10 @@ class CaptchasDotNet:
         encryption_base = self.__secret + random
         if (password_alphabet != "abcdefghijklmnopqrstuvwxyz") or (password_length != 6):
             encryption_base += ":" + password_alphabet + ":" + str(password_length)
-        digest = md5.new (encryption_base).digest ()
+        m = hashlib.md5()
+        m.update(encryption_base)
+        #digest = md5.new (encryption_base).digest ()
+        digest = m.digest()
 
         # Compute password
         correct_password = ''
