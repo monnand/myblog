@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 import markdown
 from datetime import datetime
 import uuid
-from lxml import html
+#from lxml import html
 
 from captcha.CaptchasDotNet import CaptchasDotNet
 
@@ -88,9 +88,8 @@ class Post(models.Model):
             self.slug = self.uuid
         if len(self.title) == 0 or len(self.content_html) == 0:
             return
-        doc = html.document_fromstring(self.content_html)
-        #self.abstract = doc.xpath('//p/text()')[0]
-        self.abstract = html.tostring(doc.xpath('//p')[0], encoding='unicode')
+        ch = self.content_html
+        self.abstract = ch[ch.find("<p>"):ch.find("</p>")]
         super(Post, self).save(*args, **kwargs)
 
 class Reader(models.Model):
