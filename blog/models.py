@@ -89,7 +89,8 @@ class Post(models.Model):
         if len(self.title) == 0 or len(self.content_html) == 0:
             return
         doc = html.document_fromstring(self.content_html)
-        self.abstract = doc.xpath('//p/text()')[0]
+        #self.abstract = doc.xpath('//p/text()')[0]
+        self.abstract = html.tostring(doc.xpath('//p')[0], encoding='unicode')
         super(Post, self).save(*args, **kwargs)
 
 class Reader(models.Model):
