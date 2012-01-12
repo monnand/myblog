@@ -13,6 +13,8 @@ def load_key_value(line, data):
     if len(line) == 0:
         return False
     pair = line.split(":")
+    if len(pair) != 2:
+        return True
     key = pair[0].lower()
     value = pair[1].strip()
 

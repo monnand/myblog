@@ -162,10 +162,12 @@ def get_post(msg, create=False):
             post.tags.add(t)
     return [post]
 
-def get_tag(tag):
+def get_tag(tag, create = True):
     try:
         ret = Tag.objects.get(tag=tag)
     except:
+        if not create:
+            return None
         ret = Tag(tag=tag, nr_refs=0)
     return ret
 
@@ -184,7 +186,33 @@ def modify_post(msg, post):
         post.content_format = msg['content_format']
         post.content_html = dump_html(post.content, post.content_format)
         modified = True
-
+    if msg.has_key("tags"):
+        for etag in post.tags.all():
+            found = False
+            for tag in msg['tags']:
+                if tag == etag.tag:
+                    found = True
+                    break
+            if not found:
+                post.tags.remove(etag)
+                etag.nr_refs -= 1
+                if etag.nr_refs == 0:
+                    etag.delete()
+                else:
+                    etag.save()
+                modified = True
+        for tag in msg['tags']:
+            found = False
+            for etag in post.tags.all():
+                if tag == etag.tag:
+                    found = True
+                    break
+            if not found:
+                t = get_tag(tag)
+                t.nr_refs += 1
+                t.save()
+                post.tags.add(t)
+                modified = True
     if modified:
         post.modified = datetime.datetime.now()
     return post
