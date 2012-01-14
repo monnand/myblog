@@ -40,7 +40,7 @@ class BlogFeed(Feed):
         ret = Post.objects.all()[:100]
         return ret
     def item_title(self, item):
-        return str(item.title)
+        return item.title
     def item_description(self, item):
         return item.content_html
     def item_link(self, item):
