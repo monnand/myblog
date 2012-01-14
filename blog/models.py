@@ -13,6 +13,7 @@ class BlogConfig(models.Model):
     nr_posts_per_page = models.IntegerField(default=10)
     nr_poptags = models.IntegerField(default=10)
     link = models.TextField()
+    about = models.TextField(default='')
 
     captcha_name = models.CharField(default='', max_length = 128)
     captcha_secret = models.CharField(default='', max_length = 128)

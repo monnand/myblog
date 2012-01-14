@@ -83,6 +83,8 @@ def set_config(request):
             bc.captcha_secret = msg['captcha_secret']
         if msg.has_key('nr_poptags'):
             bc.nr_poptags = int(msg['nr_poptags'])
+        if msg.has_key('about'):
+            bc.about = msg['about']
 
         bc.save()
         return HttpResponse("Success\r\n")
@@ -406,6 +408,9 @@ def view_author(request, authorname):
         raise Http404
     author = author[0]
     return render_to_resp('author.html', {'author':author})
+
+def view_about(request):
+    return render_to_resp('about.html', {})
 
 def view_tag(request, tid, page_nr = 1):
     if request.method == 'POST':

@@ -224,6 +224,10 @@ a:hover {
 	letter-spacing: -1px;
 }
 
+.post .title .authorname {
+	text-transform: capitalize;
+}
+
 .post .title a {
 	text-decoration: none;
 	color: #293D75;
@@ -249,6 +253,10 @@ a:hover {
 
 .post .links {
 	float: right;
+}
+
+.post em {
+	font-weight:bold;
 }
 
 .links a {

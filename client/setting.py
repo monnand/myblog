@@ -38,6 +38,8 @@ def load_settings(filename):
     key = kf.read()
     kf.close()
 
+    about = f.read()
+    data['about'] = about
     jmsg = json.dumps(data)
 
     en = RSA.importKey(key)

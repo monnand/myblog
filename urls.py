@@ -26,4 +26,5 @@ urlpatterns = patterns('',
     (r'postcomment/(\d+)/$', 'myblog.blog.views.post_comment'),
     (r'settings/$', 'myblog.blog.views.set_config'),
     (r'tag/(\d+)/(\d*)$', 'myblog.blog.views.view_tag'),
+    (r'about/$', 'myblog.blog.views.view_about'),
 )
