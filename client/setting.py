@@ -22,7 +22,7 @@ def pad_msg(msg, block_size):
     p = " "
     return msg + (block_size - len(msg) % block_size) * p
 
-def load_settings(filename, domain_name):
+def load_settings(filename, domain_name, link):
     data = {}
     f = open(filename, "r")
 
@@ -41,6 +41,7 @@ def load_settings(filename, domain_name):
     about = f.read()
     data['about'] = about
     data['domain_name'] = domain_name
+    data['link'] = link
     jmsg = json.dumps(data)
 
     en = RSA.importKey(key)
@@ -69,13 +70,15 @@ def load_settings(filename, domain_name):
 if __name__ == "__main__":
     url = "http://127.0.0.1:8000/settings/"
     domain_name = "127.0.0.1"
+    link = "http://127.0.0.1/"
 
     if len(sys.argv) > 2:
         url = "http://" + sys.argv[2] + "/settings/"
         domain_name = sys.argv[2]
+        link = "http://" + sys.argv[2] + "/"
 
     filename = sys.argv[1]
-    data = load_settings(filename, domain_name)
+    data = load_settings(filename, domain_name, link)
 
     c = urllib2.urlopen(url, data)
     c.read()
