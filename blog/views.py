@@ -70,7 +70,7 @@ def set_config(request):
         if not author.can_set_config:
             return HttpResponseForbidden("Failed\r\n")
         msg = decode_post(msg, author.decrypt_key, key)
-        bc = get_blog_config()
+        bc = BlogConfig.get()
         if msg.has_key('title'):
             bc.title = msg['title']
         if msg.has_key('subtitle'):
@@ -81,6 +81,9 @@ def set_config(request):
             bc.captcha_name = msg['captcha_name']
         if msg.has_key('captcha_secret'):
             bc.captcha_secret = msg['captcha_secret']
+        if msg.has_key('nr_poptags'):
+            bc.nr_poptags = int(msg['nr_poptags'])
+
         bc.save()
         return HttpResponse("Success\r\n")
     return HttpResponseForbidden("Not implemented\r\n")
@@ -262,7 +265,8 @@ def post_blog(request):
 
 def render_to_resp(template, kv):
     bc = BlogConfig.get()
-    meta = {'config':bc}
+    poptags = Tag.objects.all()[:bc.nr_poptags]
+    meta = {'config':bc, 'poptags':poptags}
     meta.update(kv)
     return render_to_response(template, meta)
 
@@ -348,28 +352,53 @@ def view_post_by_id(request, postid, err = ''):
     post = post[0]
     return respond_post(post)
 
+def resp_posts_list(posts, page_nr = 1, url_before_pgn = "l", url_after_pgn = ""):
+    bc = BlogConfig.get()
+    post_per_page = bc.nr_posts_per_page
+    page_nr = page_nr - 1
+    if page_nr < 0:
+        page_nr = 0
+    start = page_nr * post_per_page
+    end = start + post_per_page
+    nr_posts = posts.count()
+    nr_pages = nr_posts/post_per_page
+    if nr_posts % post_per_page:
+        nr_pages += 1
+    return render_to_resp('postslist.html', {'posts': posts[start:end], \
+            'pages':range(1, nr_pages + 1), 'url_before_pgn': url_before_pgn, \
+            'url_after_pgn': url_after_pgn})
+
+
 def view_posts_list(request, page_nr = 1, lang = 'all'):
     if request.method == 'POST':
         return HttpResponseForbidden("Not implemented\r\n")
-    bc = get_blog_config()
-    post_per_page = bc.nr_posts_per_page
-    page_nr = int(page_nr) - 1
-    if page_nr < 0:
-        page_nr = 0
-    start = int(page_nr) * post_per_page
-    end = start + post_per_page
     posts = []
     if len(lang) != 4:
         posts = Post.objects.all()
         lang = 'all'
     else:
         posts = Post.objects.filter(language=lang)
-    nr_posts = posts.count()
-    nr_pages = nr_posts/post_per_page
-    if nr_posts % post_per_page:
-        nr_pages += 1
-    return render_to_resp('postslist.html', {'posts': posts[start:end], \
-            'pages':range(1, nr_pages + 1), 'lang': lang})
+    return resp_posts_list(posts, int(page_nr), "l", lang)
+
+#    bc = get_blog_config()
+#    post_per_page = bc.nr_posts_per_page
+#    page_nr = int(page_nr) - 1
+#    if page_nr < 0:
+#        page_nr = 0
+#    start = int(page_nr) * post_per_page
+#    end = start + post_per_page
+#    posts = []
+#    if len(lang) != 4:
+#        posts = Post.objects.all()
+#        lang = 'all'
+#    else:
+#        posts = Post.objects.filter(language=lang)
+#    nr_posts = posts.count()
+#    nr_pages = nr_posts/post_per_page
+#    if nr_posts % post_per_page:
+#        nr_pages += 1
+#    return render_to_resp('postslist.html', {'posts': posts[start:end], \
+#            'pages':range(1, nr_pages + 1), 'lang': lang})
 
 def view_author(request, authorname):
     author = Author.objects.filter(name=authorname)
@@ -377,3 +406,12 @@ def view_author(request, authorname):
         raise Http404
     author = author[0]
     return render_to_resp('author.html', {'author':author})
+
+def view_tag(request, tid, page_nr = 1):
+    if request.method == 'POST':
+        return HttpResponseForbidden("Not implemented\r\n")
+    posts = Post.objects.filter(tags__id=int(tid))
+    if not page_nr:
+        page_nr = 1
+    return resp_posts_list(posts, int(page_nr), "tag/" + str(tid), "")
+

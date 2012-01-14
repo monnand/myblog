@@ -42,7 +42,19 @@
 <div class="pagelist">
     Pages: 
     {% for pgn in pages %}
-    <a href="/l/{{pgn}}/{{lang}}/">{{pgn}}</a>, 
+        {% if url_before_pgn %}
+            {% if url_after_pgn %}
+                <a href="/{{ url_before_pgn }}/{{pgn}}/{{url_after_pgn}}/">{{pgn}}</a>, 
+            {% else %}
+                <a href="/{{ url_before_pgn }}/{{pgn}}/">{{pgn}}</a>, 
+            {% endif %}
+        {% else %}
+            {% if url_after_pgn %}
+                <a href="/{{pgn}}/{{url_after_pgn}}/">{{pgn}}</a>, 
+            {% else %}
+                <a href="/{{pgn}}/">{{pgn}}</a>, 
+            {% endif %}
+        {% endif %}
     {% endfor %}
 </div>
 <div style="clear: both;">&nbsp;</div>

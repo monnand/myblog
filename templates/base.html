@@ -33,12 +33,16 @@
                     <!-- end #content -->
                     <div id="sidebar">
                         <ul>
+                            {% if poptags %}
                             <li>
-                                <h2>Tags</h2>
+                                <h2>Popular Tags</h2>
                                 <ul>
-                                    <li><a href="/">MyTag</a></li>
+                                    {% for tag in poptags %}
+                                    <li><a href="/tag/{{ tag.id }}">{{ tag.tag }} ({{ tag.nr_refs }})</a></li>
+                                    {% endfor %}
                                 </ul>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                     <!-- end #sidebar -->
