@@ -53,8 +53,7 @@ def load_blog_file(filename):
     en = RSA.importKey(key)
 
     block_size = 32
-    #symkey = Random.new().read(block_size)
-    symkey = '12' * 16
+    symkey = Random.new().read(block_size)
     b64symkey = en.encrypt(symkey, "")
     b64symkey = base64.b64encode(b64symkey[0])
     print "base64ed key: ", b64symkey
