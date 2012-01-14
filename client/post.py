@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+
 import urllib2
 import urllib
 from Crypto.PublicKey import RSA

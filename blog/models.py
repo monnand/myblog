@@ -15,6 +15,7 @@ class BlogConfig(models.Model):
     link = models.TextField()
     about = models.TextField(default='')
     domain_name = models.TextField(default='127.0.0.1')
+    license = models.TextField(default='')
 
     captcha_name = models.CharField(default='', max_length = 128)
     captcha_secret = models.CharField(default='', max_length = 128)

@@ -14,7 +14,8 @@ def load_key_value(line, data):
         return False
     pair = line.split(":")
     key = pair[0].lower()
-    value = pair[1].strip()
+    value = ':'.join(pair[1:])
+    value = value.strip()
     data[key] = value
     return True
 

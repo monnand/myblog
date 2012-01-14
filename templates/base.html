@@ -33,6 +33,15 @@
                     <!-- end #content -->
                     <div id="sidebar">
                         <ul>
+                            {% if config.license %}
+                            <li>
+                                <h2>License</h2>
+                                <p>
+                                {{ config.license|safe }}
+                                </p>
+                            </li>
+                            {% endif %}
+
                             {% if poptags %}
                             <li>
                                 <h2>Popular Tags</h2>

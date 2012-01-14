@@ -89,6 +89,8 @@ def set_config(request):
             bc.domain_name = msg['domain_name']
         if msg.has_key('link'):
             bc.link = msg['link']
+        if msg.has_key('license'):
+            bc.license = msg['license']
 
         bc.save()
         return HttpResponse("Success\r\n")
