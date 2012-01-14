@@ -85,6 +85,8 @@ def set_config(request):
             bc.nr_poptags = int(msg['nr_poptags'])
         if msg.has_key('about'):
             bc.about = msg['about']
+        if msg.has_key('domain_name'):
+            bc.domain_name = msg['domain_name']
 
         bc.save()
         return HttpResponse("Success\r\n")
