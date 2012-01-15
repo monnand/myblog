@@ -54,9 +54,6 @@ class BlogFeed(Feed):
     def item_pubdate(self, item):
         return item.created
 
-def get_blog_config():
-    return BlogConfig.get()
-
 @csrf_exempt
 def set_config(request):
     if request.method == 'POST':
@@ -387,26 +384,6 @@ def view_posts_list(request, page_nr = 1, lang = 'all'):
     else:
         posts = Post.objects.filter(language=lang)
     return resp_posts_list(posts, int(page_nr), "l", lang)
-
-#    bc = get_blog_config()
-#    post_per_page = bc.nr_posts_per_page
-#    page_nr = int(page_nr) - 1
-#    if page_nr < 0:
-#        page_nr = 0
-#    start = int(page_nr) * post_per_page
-#    end = start + post_per_page
-#    posts = []
-#    if len(lang) != 4:
-#        posts = Post.objects.all()
-#        lang = 'all'
-#    else:
-#        posts = Post.objects.filter(language=lang)
-#    nr_posts = posts.count()
-#    nr_pages = nr_posts/post_per_page
-#    if nr_posts % post_per_page:
-#        nr_pages += 1
-#    return render_to_resp('postslist.html', {'posts': posts[start:end], \
-#            'pages':range(1, nr_pages + 1), 'lang': lang})
 
 def view_author(request, authorname):
     author = Author.objects.filter(name=authorname)

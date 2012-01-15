@@ -20,6 +20,8 @@ def decode_post(msg, privkey, enckey):
         return None
 
 def dump_html(content, content_format):
+    if content_format == 'html':
+        return content
     md = markdown.Markdown(extensions = ['footnotes', \
             'codehilite', 'headerid(level=3)'])
     ret = md.convert(content)

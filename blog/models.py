@@ -6,6 +6,7 @@ import uuid
 #from lxml import html
 
 from captcha.CaptchasDotNet import CaptchasDotNet
+from blog.decode import decode_post, dump_html
 
 class BlogConfig(models.Model):
     title = models.TextField()
@@ -90,8 +91,10 @@ class Post(models.Model):
             self.uuid = uuid.uuid4().hex
         if len(self.slug) == 0:
             self.slug = self.uuid
-        if len(self.title) == 0 or len(self.content_html) == 0:
+        if len(self.title) == 0 or len(self.content) == 0:
             return
+        if len(self.content_html) == 0:
+            self.content_html = dump_html(self.content, self.content_format)
         ch = self.content_html
         self.abstract = ch[ch.find("<p>"):ch.find("</p>")]
         super(Post, self).save(*args, **kwargs)
@@ -113,4 +116,19 @@ class Comment(models.Model):
 #    post = models.ForeignKey(Post)
 #    image = models.ImageField(max_length = 256)
 
+class Sidebar(models.Model):
+    name = models.CharField(max_length=128)
+    priority = models.IntegerField(default=1)
+    title = models.CharField(max_length=128)
+    content = models.TextField()
+    content_html = models.TextField()
+    content_format = models.CharField(max_length=32, default="markdown")
+    class Meta:
+        ordering = ['priority']
+
+    def save(self, *args, **kwargs):
+        if self.content == '' or self.content_format == '':
+            return
+        self.content_html = dump_html(self.content, self.content_format)
+        super(Sidebar, self).save(*args, **kwargs)
 
