@@ -370,11 +370,10 @@ def resp_posts_list(posts, page_nr = 1, url_before_pgn = "l", url_after_pgn = ""
     if nr_posts % post_per_page:
         nr_pages += 1
     posts = posts[start:end]
-    postmap = {}
     for p in posts:
         n = Comment.objects.filter(post__id = p.id).count()
-        postmap[p] = n
-    return render_to_resp('postslist.html', {'posts': postmap, \
+        p.nr_comments = n
+    return render_to_resp('postslist.html', {'posts': posts, \
             'pages':range(1, nr_pages + 1), 'url_before_pgn': url_before_pgn, \
             'url_after_pgn': url_after_pgn})
 

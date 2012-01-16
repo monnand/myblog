@@ -4,7 +4,7 @@
 
 {% block content %}
 
-{% for post, nr_comments in posts.items %}
+{% for post in posts %}
 <div class="post">
     <h2 class="title">
         <a href="/p/{{ post.slug }}/{{ post.language }}/">
@@ -33,7 +33,7 @@
         </p>
         <p class="links">
 		<a href="/p/{{ post.slug }}/{{ post.language }}/">Read More</a> |
-        <a href="/p/{{ post.slug }}/{{ post.language }}/">Comment ({{ nr_comments }})</a>
+        <a href="/p/{{ post.slug }}/{{ post.language }}/">Comment ({{ post.nr_comments }})</a>
         </p>
 
 		<p class="share">

@@ -86,6 +86,10 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created', '-modified']
 
+    def __init__(self, *args, **kwargs):
+        self.nr_comments = -1
+        super(Post, self).__init__(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         if len(self.uuid) == 0:
             self.uuid = uuid.uuid4().hex
