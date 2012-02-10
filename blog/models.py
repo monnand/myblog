@@ -100,7 +100,8 @@ class Post(models.Model):
         if len(self.content_html) == 0:
             self.content_html = dump_html(self.content, self.content_format)
         ch = self.content_html
-        self.abstract = ch[ch.find("<p>"):ch.find("</p>")]
+        #self.abstract = ch[ch.find("<p>"):ch.find("</p>")]
+        self.abstract = ch[:ch.find("<h3")]
         super(Post, self).save(*args, **kwargs)
 
 class Reader(models.Model):
