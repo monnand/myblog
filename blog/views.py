@@ -26,6 +26,9 @@ from blog.forms import PostCommentForm
 from captcha.CaptchasDotNet import CaptchasDotNet
 
 class BlogFeed(Feed):
+    def __call__(self):
+        response = HttpResponse(content_type='application/rss+xml; charset=utf-8')
+        return response
     def title(self):
         bc = BlogConfig.get()
         return bc.title
