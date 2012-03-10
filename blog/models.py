@@ -101,7 +101,10 @@ class Post(models.Model):
             self.content_html = dump_html(self.content, self.content_format)
         ch = self.content_html
         #self.abstract = ch[ch.find("<p>"):ch.find("</p>")]
-        self.abstract = ch[:ch.find("<h3")]
+        subtitleidx = ch.find("<h3")
+        if subtitleidx <= 0:
+            subtitleidx = len(ch)
+        self.abstract = ch[:subtitleidx]
         super(Post, self).save(*args, **kwargs)
 
 class Reader(models.Model):
