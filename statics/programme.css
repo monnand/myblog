@@ -196,7 +196,7 @@ a:hover {
 /* Page */
 
 #page {
-	width: 980px;
+	width: 1040px;
 	margin: 0 auto;
 	padding: 0px 0px 0px 0px;
 }
@@ -208,7 +208,7 @@ a:hover {
 
 #content {
 	float: left;
-	width: 560px;
+	width: 700px;
 	padding: 40px 30px 0px 30px;
 	background: #FFFFFF;
 }
@@ -309,7 +309,7 @@ a:hover {
 	float: right;
 	width: 280px;
 	margin: 0px;
-	padding: 0px 20px 0px 0px;
+	padding: 10px 0px 0px 0px;
 }
 
 #sidebar ul {
